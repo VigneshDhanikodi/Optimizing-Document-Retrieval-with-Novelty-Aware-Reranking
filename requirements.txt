@@ -1,0 +1,6 @@
+sentence-transformers
+datasets
+numpy
+pandas
+scikit-learn
+rouge-score
