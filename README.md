@@ -1,102 +1,244 @@
-# Neural Re-Ranking & Novelty-Aware Retrieval System
-### *Optimizing Search Relevance through Transformer-based Cross-Encoders and Diversity Algorithms*
+<div align="center">
+
+# 🚀 Neural Re-Ranking & Novelty-Aware Retrieval System
+
+### ⚡ Enhancing Search Relevance using Transformer-based Rerankers
+
+<img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+<img src="https://img.shields.io/badge/Transformers-HuggingFace-FF6F00?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/IR-Neural%20Ranking-blue?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Status-Research--Grade-purple?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"/>
 
 ---
 
-## 🌐 Executive Overview
-In the era of massive data, traditional lexical search engines often return results that are technically relevant but semantically redundant. This project introduces a **high-performance neural re-ranking pipeline** designed to bridge the gap between keyword matching and deep semantic understanding. By integrating **Transformer-based Cross-Encoders** with a **Novelty-Aware Ranking** mechanism, this system ensures that the top-k results are not only accurate but also diverse, maximizing the information gain for the end-user.
+> **Project Description:**
+> A **neural re-ranking system** designed to improve search quality by combining **semantic relevance scoring with novelty-aware ranking**, enabling better diversity and reduced redundancy in retrieved results.
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+| #  | Section                                       |
+| -- | --------------------------------------------- |
+| 1  | [🌐 Overview](#-overview)                     |
+| 2  | [🎯 Problem Statement](#-problem-statement)   |
+| 3  | [💡 Approach](#-approach)                     |
+| 4  | [🏗️ Architecture](#️-architecture)           |
+| 5  | [📦 Dataset](#-dataset)                       |
+| 6  | [🧠 Model Design](#-model-design)             |
+| 7  | [⚙️ Implementation](#️-implementation)        |
+| 8  | [📊 Evaluation Metrics](#-evaluation-metrics) |
+| 9  | [📈 Results](#-results)                       |
+| 10 | [🚀 Quickstart](#-quickstart)                 |
+| 11 | [📁 Project Structure](#-project-structure)   |
+| 12 | [⚠️ Limitations](#️-limitations)              |
+| 13 | [🔮 Future Work](#-future-work)               |
+| 14 | [📜 License](#-license)                       |
+
+---
+
+## 🌐 Overview
+
+Traditional search systems rely on **keyword matching (BM25, TF-IDF)**, which fail to capture:
+
+* Semantic meaning
+* Contextual relationships
+* Redundancy in top results
+
+This project introduces a **Transformer-based re-ranking pipeline** that:
+
+* Improves **semantic relevance**
+* Introduces **novelty-aware scoring**
+* Produces **diverse and high-quality ranked results**
 
 ---
 
 ## 🎯 Problem Statement
-Modern Information Retrieval (IR) faces three primary challenges that this project addresses:
-1.  **Lexical Mismatch:** Traditional models like **BM25** rely on exact word overlaps and fail to capture synonyms or contextual intent.
-2.  **Information Redundancy:** Standard ranking functions often populate the top-k slots with near-duplicate documents, leading to a poor user experience.
-3.  **Efficiency-Accuracy Trade-off:** While deep learning models provide superior accuracy, they are too computationally expensive to run against millions of documents in real-time.
+
+* ❌ Top-k results often contain **redundant information**
+* ❌ Keyword-based ranking lacks **semantic understanding**
+* ❌ No mechanism to balance **relevance vs diversity**
 
 ---
 
-## 🏗️ System Architecture: The Two-Stage Pipeline
-To balance computational efficiency with state-of-the-art accuracy, the system utilizes a **Two-Stage Retrieval Architecture**.
+## 💡 Approach
 
+We implement a **two-stage retrieval pipeline**:
 
+### Stage 1: Initial Retrieval
 
-### 1. Stage One: Candidate Retrieval (The "Harvester")
-* **Mechanism:** Uses **BM25 (Best Matching 25)** or a Bi-Encoder (Dense Retrieval) to scan the entire corpus.
-* **Goal:** High recall. It quickly narrows down millions of documents to the top $N$ (e.g., $N=100$) candidates.
+* BM25 / baseline retrieval
+* Fetch top-N candidate documents
 
-### 2. Stage Two: Neural Re-Ranking (The "Refiner")
-* **Mechanism:** Employs a **Transformer-based Cross-Encoder** (e.g., BERT, RoBERTa, or MiniLM).
-* **Goal:** High precision. It performs deep self-attention across the query-document pair to calculate a definitive relevance score.
+### Stage 2: Neural Re-ranking
 
----
-
-## 🧠 Model Design & Novelty Strategy
-### Cross-Encoder Logic
-Unlike Bi-Encoders, which process queries and documents independently, our **Cross-Encoder** processes the query and document simultaneously. This allows the model to capture interaction features that are invisible to vector-space models.
-
-### Novelty-Aware Scoring
-To solve the redundancy problem, we implement a **Maximal Marginal Relevance (MMR)** style logic. The final score for a document $D$ is a weighted combination of its relevance to the query $Q$ and its novelty relative to documents already selected in the top-k:
-
-$$Score = \lambda \cdot Sim(Q, D) - (1 - \lambda) \cdot \max_{D' \in Selected} Sim(D, D')$$
-
-* **$\lambda$ (Lambda):** A hyperparameter that balances the trade-off between relevance and diversity.
-* **Benefit:** This penalizes documents that are semantically identical to those already shown to the user.
-
-
+* Transformer model scores query-document pairs
+* Apply **novelty penalty / diversity boosting**
+* Generate final ranked list
 
 ---
 
-## 📦 Technical Implementation
-| Component | Technology Stack |
-| :--- | :--- |
-| **Language** | Python 3.9+ |
-| **Deep Learning** | PyTorch, HuggingFace Transformers |
-| **Data Orchestration** | Pandas, NumPy |
-| **Model Optimization** | ONNX / TensorRT (for inference speed) |
-| **Similarity Search** | FAISS / Scikit-learn |
+## 🏗️ Architecture
 
----
-
-## 📊 Evaluation Metrics
-We evaluate the system using standard IR benchmarks to ensure both ranking quality and diversity.
-
-* **NDCG@K (Normalized Discounted Cumulative Gain):** Measures ranking quality based on the position of relevant results.
-* **MRR (Mean Reciprocal Rank):** Evaluates how quickly the first relevant document appears.
-* **S-Recall (Semantic Recall):** Measures the percentage of unique semantic concepts covered in the top-k results.
-* **Redundancy Rate:** A custom metric calculating the average cosine similarity between top-k document pairs.
-
----
-
-## 📈 Key Results
-The implementation of the Neural Reranker yielded significant improvements over the BM25 baseline:
-* **Relevance Boost:** +15-20% improvement in **NDCG@10**.
-* **Diversity Enhancement:** Reduced top-k redundancy by ~30% using the Novelty-Aware penalty.
-* **Precision:** Significantly fewer "False Positives" where documents shared keywords but not intent.
-
----
-
-## 📁 Project Structure
-```text
-reranker-system/
-├── core/
-│   ├── retriever.py       # BM25 / Vector search logic
-│   ├── reranker.py        # Transformer Cross-Encoder implementation
-│   └── diversity.py       # Novelty-aware scoring algorithms
-├── notebooks/
-│   └── evaluation.ipynb   # Performance benchmarking
-├── models/                # Saved weights and configurations
-├── requirements.txt       # Dependency list
-└── README.md              # Project documentation
+```id="c9b6gx"
+User Query
+    ↓
+Initial Retrieval (BM25 / TF-IDF)
+    ↓
+Top-N Documents
+    ↓
+Transformer Reranker
+    ↓
+Relevance Scoring
+    ↓
+Novelty/Diversity Adjustment
+    ↓
+Final Ranked Results
 ```
 
 ---
 
-## 🔮 Future Roadmap
-* **Distillation:** Training a smaller **DistilBERT** or **TinyBERT** model to reduce inference latency by 4x.
-* **ColBERT Integration:** Implementing late-interaction architectures for a better balance between Bi-Encoders and Cross-Encoders.
-* **Multilingual Support:** Extending the reranker to handle cross-lingual retrieval (e.g., English query fetching German docs).
+## 📦 Dataset
+
+| Feature | Description          |
+| ------- | -------------------- |
+| Type    | Text corpus          |
+| Input   | Query–Document pairs |
+| Task    | Ranking / Re-ranking |
+| Format  | JSON / CSV           |
 
 ---
 
-> **Note:** This project is designed for integration into **RAG (Retrieval-Augmented Generation)** pipelines, where the quality of the retrieved context directly dictates the accuracy of the LLM's response.
+## 🧠 Model Design
+
+### Model Used
+
+* Transformer-based cross-encoder (e.g., BERT / MiniLM)
+
+### Key Components
+
+* Query-document pair encoding
+* Context-aware relevance scoring
+* Novelty-aware ranking mechanism
+
+### Novelty Strategy
+
+* Penalizes duplicate semantic content
+* Encourages diversity in top-k results
+* Improves user search experience
+
+---
+
+## ⚙️ Implementation
+
+* **Language:** Python
+* **Framework:** PyTorch / HuggingFace Transformers
+* **Libraries:**
+
+  * numpy
+  * pandas
+  * scikit-learn
+
+### Key Functionalities
+
+* Tokenization & embedding
+* Pairwise ranking inference
+* Ranking score normalization
+* Novelty-aware reranking logic
+
+---
+
+## 📊 Evaluation Metrics
+
+| Metric          | Purpose                       |
+| --------------- | ----------------------------- |
+| NDCG            | Ranking quality               |
+| MAP             | Precision across queries      |
+| MRR             | First relevant result quality |
+| Diversity Score | Novelty evaluation            |
+
+---
+
+## 📈 Results
+
+* Improved **semantic relevance over baseline**
+* Reduced redundancy in top-k results
+* Better **ranking diversity**
+
+> Example Improvements:
+
+* ↑ NDCG
+* ↑ MAP
+* ↑ User-relevant diversity
+
+---
+
+## 🚀 Quickstart
+
+```bash id="xv6yz1"
+git clone https://github.com/your-username/reranker-project.git
+cd reranker-project
+pip install -r requirements.txt
+```
+
+Run notebook:
+
+```bash id="ylt8pp"
+jupyter notebook
+```
+
+---
+
+## 📁 Project Structure
+
+```id="7fw0il"
+project/
+├── rerankers_novelty.ipynb
+├── data/
+├── models/
+├── utils/
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## ⚠️ Limitations
+
+* Computationally expensive (Transformer inference)
+* Requires high-quality labeled data
+* Scaling to large corpora is costly
+
+---
+
+## 🔮 Future Work
+
+* Hybrid retrieval (BM25 + Dense embeddings)
+* Faster rerankers (DistilBERT / ColBERT)
+* Integration with RAG systems
+* Real-time search deployment
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## ⭐ Why This Project Matters
+
+This project demonstrates:
+
+* Deep understanding of **Information Retrieval systems**
+* Practical use of **Transformer-based ranking**
+* Ability to design **production-grade search pipelines**
+
+👉 Highly relevant for:
+
+* AI/ML roles
+* Search & Recommendation systems
+* LLM / RAG pipelines
